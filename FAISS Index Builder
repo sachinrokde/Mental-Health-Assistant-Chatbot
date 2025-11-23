@@ -1,0 +1,28 @@
+import os
+from langchain.embeddings import HuggingFaceEmbeddings
+from langchain.vectorstores import FAISS
+
+DATA_PATH = "data/mental_health_data.txt"
+INDEX_PATH = "faiss_index"
+
+def load_data():
+    with open(DATA_PATH, "r", encoding="utf-8") as f:
+        text = f.read().split("\n")
+    return text
+
+def main():
+    print("Loading data...")
+    docs = load_data()
+
+    print("Generating embeddings...")
+    embedder = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
+
+    print("Creating FAISS index...")
+    vector_db = FAISS.from_texts(docs, embedder)
+
+    print("Saving FAISS index...")
+    vector_db.save_local(INDEX_PATH)
+    print("Index saved successfully!")
+
+if __name__ == "__main__":
+    main()
