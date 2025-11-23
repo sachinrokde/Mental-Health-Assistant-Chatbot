@@ -1,0 +1,29 @@
+from langchain.vectorstores import FAISS
+from langchain.embeddings import HuggingFaceEmbeddings
+from langchain.llms import HuggingFaceHub
+from langchain.chains import RetrievalQA
+
+INDEX_PATH = "faiss_index"
+
+def load_retriever():
+    embedder = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
+    db = FAISS.load_local(INDEX_PATH, embedder, allow_dangerous_deserialization=True)
+    retriever = db.as_retriever(search_kwargs={"k": 2})
+    return retriever
+
+def build_rag_pipeline():
+    # Using Mistral (huggingface-hub token required)
+    llm = HuggingFaceHub(
+        repo_id="mistralai/Mistral-7B-Instruct-v0.2",
+        model_kwargs={"temperature": 0.3, "max_new_tokens": 256}
+    )
+
+    retriever = load_retriever()
+
+    qa_chain = RetrievalQA.from_chain_type(
+        llm=llm,
+        retriever=retriever,
+        return_source_documents=True
+    )
+
+    return qa_chain
