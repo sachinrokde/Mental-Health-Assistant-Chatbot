@@ -1,0 +1,20 @@
+from rag_pipeline import build_rag_pipeline
+
+def main():
+    print("🤖 Mental Health Assistant Chatbot")
+    print("Type 'exit' to stop.\n")
+
+    qa_chain = build_rag_pipeline()
+
+    while True:
+        query = input("You: ")
+
+        if query.lower() == "exit":
+            print("Goodbye! Take care ❤️")
+            break
+
+        response = qa_chain(query)
+        print("\nBot:", response["result"], "\n")
+
+if __name__ == "__main__":
+    main()
